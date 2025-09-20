@@ -1,0 +1,218 @@
+{% extends "base.html" %} 
+
+{% block title %}Pomodoro Timer{% endblock %}
+
+{% block content %}
+<!--index.html - Enhanced with Custom Duration Inputs (Pomofocus-Style)-->
+<div class="app-layout">
+    <!-- Left Column: Timer & Tasks -->
+    <div class="left-column">
+        <div class="pomodoro-container">
+            <!-- Mode Switch & Settings -->
+            <div class="modes">
+                <button class="mode-btn active" data-mode="pomodoro">Timer</button>
+                <button class="mode-btn" data-mode="short">Short Break</button>
+                <button class="mode-btn" data-mode="long">Long Break</button>
+                <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+            </div>
+
+            <!-- Timer -->
+            <div class="timer-section">
+                <div class="timer">
+                    <span id="minutes">25</span>:<span id="seconds">00</span>
+                </div>
+                <div class="controls">
+                    <button id="start-pause" class="btn-alarm">Start</button>
+                    <button id="skip" class="btn-skip" title="Skip Session">⏩</button>
+                </div>
+                <div class="session-counter">
+                    Sessions completed: <span id="session-count">0</span>
+                </div>
+            </div>
+
+            <!-- Enhanced Tasks with Custom Duration Input -->
+            <div class="task-section">
+                <div class="task-header">
+                    <h3>Tasks</h3>
+                </div>
+                
+                <!-- Updated Task Input Row with Custom Duration Input -->
+                <div class="task-input-row">
+                    <input type="text" id="task-input" placeholder="What's your next task?" class="task-input-field">
+                    
+                    <div class="duration-input-group">
+                        <label class="duration-label">Duration</label>
+                        <div class="custom-input-wrapper">
+                            <input type="number" id="task-duration" class="custom-duration-input" 
+                                   value="25" min="5" max="180" step="5">
+                            <div class="duration-controls">
+                                <button type="button" class="duration-btn duration-up">▲</button>
+                                <button type="button" class="duration-btn duration-down">▼</button>
+                            </div>
+                            <span class="duration-unit">min</span>
+                        </div>
+                    </div>
+                    
+                    <button id="add-task" class="add-btn">
+                        <span>+</span>
+                        <span>Add</span>
+                    </button>
+                </div>
+                
+                <!-- Task List with Empty State -->
+                <div class="task-list-container">
+                    <div id="empty-state" class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <p>No tasks yet. Add your first task above or try our Smart Planner!</p>
+                    </div>
+                    <ul id="task-list" class="task-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: AI Planner -->
+    <div class="right-column">
+        <div class="ai-planner">
+            <h3>🤖 Smart Session</h3>
+            <p class="ai-subtitle">
+                Get comprehensive work session plans with optimal breaks
+            </p>
+
+            <!-- Study Tips Block -->
+            <div id="study-tips-block" class="study-tips-block">
+                <div class="tip-content">
+                    <span class="tip-icon">💡</span>
+                    <span class="tip-text" id="current-tip">Take notes by hand for better retention</span>
+                </div>
+            </div>
+
+            <div class="ai-input-section">
+                <div class="ai-input-group">
+                    <input 
+                        type="text" 
+                        id="ai-goal-input" 
+                        placeholder="e.g., study calculus chapter 5, write essay, review notes"
+                    >
+                </div>
+
+                <div class="session-length-group">
+                    <label>Session Length:</label>
+                    <div class="session-buttons">
+                        <button class="session-btn active" data-length="short">Quick (1h)</button>
+                        <button class="session-btn" data-length="medium">Focus (2-4h)</button>
+                        <button class="session-btn" data-length="long">Deep (6h)</button>
+                    </div>
+                </div>
+
+                <button id="generate-plan-btn" class="generate-btn">✨ Generate Plan</button>
+            </div>
+
+            <!-- Generated Tasks -->
+            <div id="ai-plan-results" class="ai-plan-results hidden">
+                <div class="plan-header">
+                    <h4>Your Session Plan</h4>
+                    <div class="plan-stats"></div>
+                </div>
+                <div class="plan-timeline" id="ai-task-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Messages Container for notifications -->
+<div id="ai-messages" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<!-- Main Settings Modal -->
+<div id="settings-modal" class="modal hidden">
+  <div class="modal-content">
+    <button class="close-modal" data-modal="settings-modal">×</button>
+    <h2 class="modal-title">⚙️ Settings</h2>
+    <div class="modal-options">
+      <button class="settings-btn" data-setting="duration">⏱ Timer Duration</button>
+      <button class="settings-btn" data-setting="theme">🎨 Timer Theme</button>
+      <button class="settings-btn" data-setting="sound">🔊 Notification Sound</button>
+      <button class="settings-btn" data-setting="stats">📊 Statistics</button>
+    </div>
+  </div>
+</div>
+
+<!-- Timer Duration Modal with Custom Inputs -->
+<div id="duration-modal" class="modal hidden">
+  <div class="modal-content">
+    <button class="close-modal" data-modal="duration-modal">×</button>
+    <h2 class="modal-title">⏱ Timer Duration</h2>
+    <div class="modal-body">
+      <div class="settings-input-group">
+        <label>Pomodoro</label>
+        <div class="custom-input-wrapper">
+          <input type="number" id="pomodoro-length" class="custom-duration-input" min="5" max="60" step="5" value="25">
+          <div class="duration-controls">
+            <button type="button" class="duration-btn duration-up">▲</button>
+            <button type="button" class="duration-btn duration-down">▼</button>
+          </div>
+          <span class="duration-unit">min</span>
+        </div>
+      </div>
+      
+      <div class="settings-input-group">
+        <label>Short Break</label>
+        <div class="custom-input-wrapper">
+          <input type="number" id="short-break-length" class="custom-duration-input" min="1" max="30" step="1" value="5">
+          <div class="duration-controls">
+            <button type="button" class="duration-btn duration-up">▲</button>
+            <button type="button" class="duration-btn duration-down">▼</button>
+          </div>
+          <span class="duration-unit">min</span>
+        </div>
+      </div>
+      
+      <div class="settings-input-group">
+        <label>Long Break</label>
+        <div class="custom-input-wrapper">
+          <input type="number" id="long-break-length" class="custom-duration-input" min="5" max="60" step="5" value="15">
+          <div class="duration-controls">
+            <button type="button" class="duration-btn duration-up">▲</button>
+            <button type="button" class="duration-btn duration-down">▼</button>
+          </div>
+          <span class="duration-unit">min</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="save-durations" class="save-btn">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Theme Modal -->
+<div id="theme-modal" class="modal hidden">
+  <div class="modal-content">
+    <button class="close-modal" data-modal="theme-modal">×</button>
+    <h2 class="modal-title">🎨 Timer Theme</h2>
+    <div class="modal-options">
+      <button class="theme-btn" data-theme="default">Default</button>
+      <button class="theme-btn" data-theme="minimal">Minimal</button>
+      <button class="theme-btn" data-theme="darkAcademia">Dark Academia</button>
+      <button class="theme-btn" data-theme="forest">Forest</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sound Modal -->
+<div id="sound-modal" class="modal hidden">
+  <div class="modal-content">
+    <button class="close-modal" data-modal="sound-modal">×</button>
+    <h2 class="modal-title">🔊 Notification Sound</h2>
+    <div class="modal-options">
+      <button class="sound-btn" data-sound="bell">Bell</button>
+      <button class="sound-btn" data-sound="alarm">Alarm</button>
+      <button class="sound-btn" data-sound="chime">Chime</button>
+    </div>
+    <div class="modal-footer">
+      <label>Volume <input type="range" id="volume-slider" min="0" max="100"></label>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
