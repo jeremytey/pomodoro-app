@@ -3,15 +3,15 @@ A simple Flask-based Pomodoro timer with task tracking, built as my first full-s
 
 🚀 Features
 
-✅ Start/stop Pomodoro timer (25/5/15 min cycles)
+✅ Start/stop Pomodoro timer 
 
 ✅ Add and manage tasks
 
 ✅ Task auto-check when breaks are skipped/finished
 
-✅ Minimalist UI with Orbitron font + neon glow design
+✅ Smart Task Manager that plans optimized study sessions
 
-✅ Footer with credits and social links
+✅ Minimalist UI with Orbitron font + neon glow design
 
 🛠️ Tech Stack
 
@@ -19,4 +19,4 @@ Backend: Python (Flask)
 
 Frontend: HTML, CSS, JavaScript
 
-Deployment-ready: Works on PythonAnywhere, Render, Heroku, or any Flask-compatible h
+Deployment-ready: Works on PythonAnywhere, Render, Heroku, or any Flask-compatible host
