@@ -1,5 +1,5 @@
-A simple Flask-based Pomodoro timer with task tracking, built as my first full-stack project. Inspired by pomofocus.io
-, but fully coded from scratch.
+A simple Flask-based Pomodoro Timer with task tracking and session planner, built as my first full-stack project. 
+Inspired by pomofocus.io, but fully coded from scratch.
 
 🚀 Features
 
